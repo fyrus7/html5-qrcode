@@ -1437,111 +1437,43 @@ export class Html5Qrcode {
         };
     }
 
-    private possiblyInsertShadingElement(
-        element: HTMLElement,
-        width: number,
-        height: number,
-        qrboxSize: QrDimensions) {
-        if ((width - qrboxSize.width) < 1 || (height - qrboxSize.height) < 1) {
-          return;
-        }
-        const shadingElement = document.createElement("div");
-        shadingElement.style.position = "absolute";
-
-        const rightLeftBorderSize = (width - qrboxSize.width) / 2;
-        const topBottomBorderSize = (height - qrboxSize.height) / 2;
-
-        shadingElement.style.borderLeft
-            = `${rightLeftBorderSize}px solid rgba(0, 0, 0, 0.48)`;
-        shadingElement.style.borderRight
-            = `${rightLeftBorderSize}px solid rgba(0, 0, 0, 0.48)`;
-        shadingElement.style.borderTop
-            = `${topBottomBorderSize}px solid rgba(0, 0, 0, 0.48)`;
-        shadingElement.style.borderBottom
-            = `${topBottomBorderSize}px solid rgba(0, 0, 0, 0.48)`;
-        shadingElement.style.boxSizing = "border-box";
-        shadingElement.style.top = "0px";
-        shadingElement.style.bottom = "0px";
-        shadingElement.style.left = "0px";
-        shadingElement.style.right = "0px";
-        shadingElement.id = `${Constants.SHADED_REGION_ELEMENT_ID}`;
-  
-        // Check if div is too small for shadows. As there are two 5px width
-        // borders the needs to have a size above 10px.
-        if ((width - qrboxSize.width) < 11 
-            || (height - qrboxSize.height) < 11) {
-          this.hasBorderShaders = false;
-        } else {
-            const smallSize = 5;
-            const largeSize = 40;
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ largeSize, 
-                /* height= */ smallSize,
-                /* top= */ -smallSize,
-                /* bottom= */ null,
-                /* side= */ 0,
-                /* isLeft= */ true);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ largeSize,
-                /* height= */ smallSize,
-                /* top= */ -smallSize,
-                /* bottom= */ null,
-                /* side= */ 0,
-                /* isLeft= */ false);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ largeSize,
-                /* height= */ smallSize,
-                /* top= */ null,
-                /* bottom= */ -smallSize,
-                /* side= */ 0,
-                /* isLeft= */ true);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ largeSize,
-                /* height= */ smallSize,
-                /* top= */ null,
-                /* bottom= */ -smallSize,
-                /* side= */ 0,
-                /* isLeft= */ false);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ smallSize,
-                /* height= */ largeSize + smallSize,
-                /* top= */ -smallSize,
-                /* bottom= */ null,
-                /* side= */ -smallSize,
-                /* isLeft= */ true);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ smallSize,
-                /* height= */ largeSize + smallSize,
-                /* top= */ null,
-                /* bottom= */ -smallSize,
-                /* side= */ -smallSize,
-                /* isLeft= */ true);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ smallSize,
-                /* height= */ largeSize + smallSize,
-                /* top= */ -smallSize,
-                /* bottom= */ null,
-                /* side= */ -smallSize,
-                /* isLeft= */ false);
-            this.insertShaderBorders(
-                shadingElement,
-                /* width= */ smallSize,
-                /* height= */ largeSize + smallSize,
-                /* top= */ null,
-                /* bottom= */ -smallSize,
-                /* side= */ -smallSize,
-                /* isLeft= */ false);
-            this.hasBorderShaders = true;
-        }
-        element.append(shadingElement);
+    _possiblyInsertShadingElement(element, width, height, qrboxSize) {
+    if ((width - qrboxSize) < 1 || (height - qrboxSize) < 1) {
+        return;
     }
+    
+    const shadingElement = document.createElement('div');
+    shadingElement.style.position = "absolute";
+    shadingElement.style.borderLeft = `${(qrboxSize * 0.05)}px solid #0000007a`;
+    shadingElement.style.borderRight = `${(qrboxSize * 0.05)}px solid #0000007a`;
+
+    // Adjust the top and bottom shading so that they remain consistent
+    shadingElement.style.borderTop = `${(height - qrboxSize) / 2}px solid #0000007a`;
+    shadingElement.style.borderBottom = `${(height - qrboxSize) / 2}px solid #0000007a`;
+    
+    shadingElement.style.boxSizing = "border-box";
+    shadingElement.style.top = "0px";
+    shadingElement.style.bottom = "0px";
+    shadingElement.style.left = "0px";
+    shadingElement.style.right = "0px";
+    shadingElement.id = Html5Qrcode.SHADED_REGION_CLASSNAME;
+
+    // Add shading borders (consistent sizing for the corners)
+    const smallSize = 5;
+    const largeSize = 40;
+
+    this._insertShaderBorders(shadingElement, largeSize, smallSize, -smallSize, 0, true);
+    this._insertShaderBorders(shadingElement, largeSize, smallSize, -smallSize, 0, false);
+    this._insertShaderBorders(shadingElement, largeSize, smallSize, (qrboxSize * 0.6), 0, true);
+    this._insertShaderBorders(shadingElement, largeSize, smallSize, (qrboxSize * 0.6), 0, false);
+    this._insertShaderBorders(shadingElement, smallSize, largeSize + smallSize, -smallSize, -smallSize, true);
+    this._insertShaderBorders(shadingElement, smallSize, largeSize + smallSize, (qrboxSize * 0.6) - largeSize, -smallSize, true);
+    this._insertShaderBorders(shadingElement, smallSize, largeSize + smallSize, -smallSize, -smallSize, false);
+    this._insertShaderBorders(shadingElement, smallSize, largeSize + smallSize, (qrboxSize * 0.6) - largeSize, -smallSize, false);
+
+    element.append(shadingElement);
+}
+
 
     private insertShaderBorders(
         shaderElem: HTMLDivElement,
